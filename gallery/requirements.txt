@@ -1,0 +1,4 @@
+#Reqs:
+boto3
+psycopg2
+flask

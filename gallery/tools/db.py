@@ -1,29 +1,45 @@
 import psycopg2
+import json
+from secrets import get_secret_image_gallery
 
-db_host = "imagegallery.cmpckbphvqlb.us-east-2.rds.amazonaws.com"
-db_name = "image_gallery"
-db_user = "image_gallery"
+#db_host = "imagegallery.cmpckbphvqlb.us-east-2.rds.amazonaws.com"
+#db_name = "image_gallery"
+#db_user = "image_gallery"
+#password_file = "/home/ec2-user/python-image-gallery/gallery/tools/pw.txt"
 
-
-password_file = "/home/ec2-user/python-image-gallery/gallery/tools/pw.txt"
 
 connection = None
 
-def get_password():
-	f = open(password_file, "r") 
-	result = f.readline()
-	f.close()
-        return result[:-1]
+def get_secret():
+    jsonString = get_secret_image_gallery()
+    return json.loads(jsonString)
 
+def get_password(secret):
+    return secret['password']
+
+
+def get_host(secret):
+    return secret['host']
+
+def get_username(secret):
+    return secret['username']
+
+def get_dbname(secret):
+    return secret['database_name']
+
+#from previous & edited
 def connect():
     global connection
-    connection = psycopg2.connect(host=db_host, dbname=db_name, user=db_user, password=get_password())
+    secret = get_secret()
+    connection = psycopg2.connect(host=get_host(secret), dbname=get_dbname(secret), user=get_username(secret), password=get_password(secret))
 
-def execute(query):
+def execute(query,arg=None):
     global connection
     cursor = connection.cursor()
-    cursor.execute(query)
-    return cursor
+    if not args:
+        cursor.execute(query)
+    else:
+        return cursor
 
 def main():
     connect()
